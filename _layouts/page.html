@@ -21,7 +21,7 @@ layout: default
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js"></script>
 
-        <!-- JavaScript to load and render multi-page PDF -->
+        <!-- JavaScript to load and render multi-page PDF with dynamic zoom functionality -->
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 // URL of the PDF file set in the Front Matter
@@ -33,42 +33,55 @@ layout: default
 
                 // Container for rendering PDF pages
                 const container = document.getElementById('pdf-viewer-container');
+                let currentScale = 1.5;  // Default scale for rendering
+                let pdfDoc = null;
 
                 // Function to render a single page
-                function renderPage(pdfDoc, pageNumber) {
-                    pdfDoc.getPage(pageNumber).then((page) => {
-                        // Create a new viewport for each page
-                        const scale = container.clientWidth / page.getViewport({scale: 1}).width; // Calculate scale based on container width
-                        const viewport = page.getViewport({scale: scale}); // Use calculated scale
+                function renderPage(page, scale) {
+                    const viewport = page.getViewport({scale: scale});
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
 
-                        const canvas = document.createElement('canvas');
-                        const context = canvas.getContext('2d');
+                    // Set canvas width and height to match the scaled viewport
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    canvas.style.width = '100%';
+                    canvas.style.height = 'auto';
 
-                        // Set canvas width and height to match the scaled viewport
-                        canvas.width = viewport.width;
-                        canvas.height = viewport.height;
-                        canvas.style.width = '100%'; // Ensure canvas stretches to the full width of the container
-                        canvas.style.height = 'auto';
+                    // Append canvas to container
+                    container.appendChild(canvas);
 
-                        // Append canvas to container
-                        container.appendChild(canvas);
-
-                        // Render the page
-                        page.render({
-                            canvasContext: context,
-                            viewport: viewport
-                        });
+                    // Render the page
+                    page.render({
+                        canvasContext: context,
+                        viewport: viewport
                     });
                 }
 
-                // Load and display the PDF
-                pdfjsLib.getDocument(url).promise.then((pdfDoc) => {
+                // Function to render all pages
+                function renderPages(scale) {
+                    container.innerHTML = ''; // Clear previous canvases
                     for (let pageNumber = 1; pageNumber <= pdfDoc.numPages; pageNumber++) {
-                        renderPage(pdfDoc, pageNumber);
+                        pdfDoc.getPage(pageNumber).then((page) => renderPage(page, scale));
                     }
+                }
+
+                // Load and display the PDF
+                pdfjsLib.getDocument(url).promise.then((loadedPdfDoc) => {
+                    pdfDoc = loadedPdfDoc;
+                    renderPages(currentScale);  // Render with default scale
                 }).catch((error) => {
                     console.error("Failed to load PDF:", error);
                     container.innerHTML = "<p>Error loading PDF. Please try again later.</p>";
+                });
+
+                // Handle window resize for dynamic zoom rendering
+                window.addEventListener('resize', () => {
+                    const newScale = container.clientWidth / (pdfDoc.getPage(1).then(page => page.getViewport({scale: 1}).width));
+                    if (Math.abs(newScale - currentScale) > 0.1) { // Render only if scale difference is significant
+                        currentScale = newScale;
+                        renderPages(currentScale);
+                    }
                 });
             });
         </script>
