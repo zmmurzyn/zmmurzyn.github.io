@@ -10,68 +10,68 @@ layout: default
     </div>
     <div class="prose mb-4 py-4">
         {{ content }}
-    </div>
 
-    <!-- PDF viewer container, rendered only if 'pdf_url' is provided -->
-    {% if page.pdf_url %}
-    <div id="pdf-viewer-container" style="margin-top: 20px; max-width: 100%; overflow-x: auto;">
-        <!-- This container will dynamically hold multiple canvases for each PDF page -->
-    </div>
+        <!-- PDF viewer container, rendered only if 'pdf_url' is provided -->
+        {% if page.pdf_url %}
+        <div id="pdf-viewer-container" style="margin-top: 20px; max-width: 100%; overflow-x: auto;">
+            <!-- This container will dynamically hold multiple canvases for each PDF page -->
+        </div>
 
-    <!-- Load PDF.js library only if 'pdf_url' is set -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js"></script>
+        <!-- Load PDF.js library only if 'pdf_url' is set -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js"></script>
 
-    <!-- JavaScript to load and render multi-page PDF -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // URL of the PDF file set in the Front Matter
-            const url = '{{ page.pdf_url }}';
+        <!-- JavaScript to load and render multi-page PDF -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // URL of the PDF file set in the Front Matter
+                const url = '{{ page.pdf_url }}';
 
-            // Initialize PDF.js settings
-            const pdfjsLib = window['pdfjs-dist/build/pdf'];
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+                // Initialize PDF.js settings
+                const pdfjsLib = window['pdfjs-dist/build/pdf'];
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
 
-            // Container for rendering PDF pages
-            const container = document.getElementById('pdf-viewer-container');
+                // Container for rendering PDF pages
+                const container = document.getElementById('pdf-viewer-container');
 
-            // Function to render a single page
-            function renderPage(pdfDoc, pageNumber) {
-                pdfDoc.getPage(pageNumber).then((page) => {
-                    // Create a new viewport for each page
-                    const scale = container.clientWidth / page.getViewport({scale: 1}).width; // Calculate scale based on container width
-                    const viewport = page.getViewport({scale: scale}); // Use calculated scale
+                // Function to render a single page
+                function renderPage(pdfDoc, pageNumber) {
+                    pdfDoc.getPage(pageNumber).then((page) => {
+                        // Create a new viewport for each page
+                        const scale = container.clientWidth / page.getViewport({scale: 1}).width; // Calculate scale based on container width
+                        const viewport = page.getViewport({scale: scale}); // Use calculated scale
 
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
 
-                    // Set canvas width and height to match the scaled viewport
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
-                    canvas.style.width = '100%'; // Ensure canvas stretches to the full width of the container
-                    canvas.style.height = 'auto';
+                        // Set canvas width and height to match the scaled viewport
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        canvas.style.width = '100%'; // Ensure canvas stretches to the full width of the container
+                        canvas.style.height = 'auto';
 
-                    // Append canvas to container
-                    container.appendChild(canvas);
+                        // Append canvas to container
+                        container.appendChild(canvas);
 
-                    // Render the page
-                    page.render({
-                        canvasContext: context,
-                        viewport: viewport
+                        // Render the page
+                        page.render({
+                            canvasContext: context,
+                            viewport: viewport
+                        });
                     });
-                });
-            }
-
-            // Load and display the PDF
-            pdfjsLib.getDocument(url).promise.then((pdfDoc) => {
-                for (let pageNumber = 1; pageNumber <= pdfDoc.numPages; pageNumber++) {
-                    renderPage(pdfDoc, pageNumber);
                 }
-            }).catch((error) => {
-                console.error("Failed to load PDF:", error);
-                container.innerHTML = "<p>Error loading PDF. Please try again later.</p>";
+
+                // Load and display the PDF
+                pdfjsLib.getDocument(url).promise.then((pdfDoc) => {
+                    for (let pageNumber = 1; pageNumber <= pdfDoc.numPages; pageNumber++) {
+                        renderPage(pdfDoc, pageNumber);
+                    }
+                }).catch((error) => {
+                    console.error("Failed to load PDF:", error);
+                    container.innerHTML = "<p>Error loading PDF. Please try again later.</p>";
+                });
             });
-        });
-    </script>
-    {% endif %}
+        </script>
+        {% endif %}
+    </div>
 </article>
