@@ -1,14 +1,22 @@
 <!-- Renders post date, title, and snippet of text with optional thumbnail. -->
 <div class="py-2 mb-2 prose" style="display: flex; align-items: flex-start; gap: 20px;">
     <div class="col-8">
+        <!-- Date with location if available -->
         <a class="no-underline h5 bold text-accent" title="{{ post.url | prepend: site.baseurl }}"
-           href="{{ post.url | prepend: site.baseurl }}">{{ post.date | date: "%b %-d, %Y" }}</a>
+           href="{{ post.url | prepend: site.baseurl }}">
+            {{ post.date | date: "%b %-d, %Y" }}
+
+            {% if post.location %}
+            &ensp;|&ensp;{{ post.location }}
+            {% endif %}
+        </a>
         <h2 class="h1 lh-condensed col-9 mt-0">
             <a class="link-primary" title="{{ post.url | prepend: site.baseurl }}"
                href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
         </h2>
         <p>{{ post.content | strip_html | truncatewords:30 }}</p>
     </div>
+
 
     {% if post.thumbnail %}
     <div class="col-4">
