@@ -2,6 +2,7 @@
 layout: category-post
 title: "master graduation project | why should we save ugly"
 date:   2023-06-30 20:20:56 -0400
+thumbnail: /assets/ZMM_portrait_square.jpg
 categories: architectural
 ---
 # master graduation project | why should we save ugly buildings
