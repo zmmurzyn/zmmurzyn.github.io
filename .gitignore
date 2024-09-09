@@ -1,4 +1,8 @@
 
 .idea/
+.jekyll-cache/
+_site/
 
 .DS_Store
+.aider*
+Gemfile.lock
