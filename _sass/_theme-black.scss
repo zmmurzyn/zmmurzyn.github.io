@@ -29,3 +29,6 @@ $color-primary-link: $red !default;
         "components",
         "utilities"
 ;
+.header-title {
+  border-bottom: 1px solid $color-title;
+}
